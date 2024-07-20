@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { setAuthState } from "@/store/authSlice";
+import { setAuthState } from "@/store/coinSlice";
 import { useAppDispatch } from "@/store";
 
 const AuthUpdater = () => {

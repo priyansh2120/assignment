@@ -1,8 +1,9 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
-import { persistReducer } from "redux-persist";
-import { authReducer } from "@/store/authSlice";
-import createWebStorage from "redux-persist/lib/storage/createWebStorage";
+// store/index.ts
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { persistReducer } from 'redux-persist';
+import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
+import { coinReducer } from '@/store/coinSlice';
 
 const createNoopStorage = () => {
   return {
@@ -19,20 +20,20 @@ const createNoopStorage = () => {
 };
 
 const storage =
-  typeof window !== "undefined"
-    ? createWebStorage("local")
+  typeof window !== 'undefined'
+    ? createWebStorage('local')
     : createNoopStorage();
 
-const authPersistConfig = {
-  key: "auth",
+const coinPersistConfig = {
+  key: 'coins',
   storage: storage,
-  whitelist: ["authState"],
+  whitelist: ['coins'],
 };
 
-const persistedReducer = persistReducer(authPersistConfig, authReducer);
+const persistedReducer = persistReducer(coinPersistConfig, coinReducer);
 
 const rootReducer = combineReducers({
-  auth: persistedReducer,
+  coins: persistedReducer,
 });
 
 export const store = configureStore({

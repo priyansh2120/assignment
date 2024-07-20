@@ -1,13 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { Coin } from '@/types';
+import CoinChart from './CoinChart'; // Make sure to import the CoinChart component
 
-import { Coin, PaginationProps } from '@/types';
+interface PaginationProps {
+  initialCoins: Coin[];
+}
 
-const Pagination = ({ coins }: PaginationProps) => {
+const Pagination = ({ initialCoins }: PaginationProps) => {
+  const [coins, setCoins] = useState<Coin[]>(initialCoins);
+  const [selectedCoins, setSelectedCoins] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const coinsPerPage = 20;
+
+  useEffect(() => {
+    const cachedCoins = localStorage.getItem('coins');
+    if (cachedCoins) {
+      setCoins(JSON.parse(cachedCoins));
+    } else {
+      localStorage.setItem('coins', JSON.stringify(initialCoins));
+    }
+  }, [initialCoins]);
+
+  const handleSelectCoin = (coinId: string) => {
+    setSelectedCoins((prevSelectedCoins) =>
+      prevSelectedCoins.includes(coinId)
+        ? prevSelectedCoins.filter((id) => id !== coinId)
+        : [...prevSelectedCoins, coinId]
+    );
+  };
 
   // Calculate total number of pages
   const totalPages = Math.ceil(coins.length / coinsPerPage);
@@ -24,23 +46,60 @@ const Pagination = ({ coins }: PaginationProps) => {
 
   return (
     <section className='mt-16'>
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-        {currentCoins.map((coin: Coin) => (
-          <div key={coin.id} className='rounded bg-white p-4 shadow'>
-            <img src={coin.image} alt={coin.name} className='w-16 h-16 object-cover' width={12} height={12}/>
-            <h3 className='font-semibold'>{coin.name}</h3>
-            <p className='text-sm text-gray-500'>Price: ₹{coin.current_price}</p>
-            <p className='text-sm text-gray-500'>24h Change: {coin.price_change_percentage_24h.toFixed(2)}%</p>
-          </div>
-        ))}
+      <CoinChart selectedCoins={selectedCoins} />
+      <div className='overflow-x-auto'>
+        <table className='min-w-full bg-white rounded-lg overflow-hidden'>
+          <thead className='bg-gray-100'>
+            <tr>
+              <th className='px-4 py-2 text-left'>Select</th>
+              <th className='px-4 py-2 text-left'>Coin</th>
+              <th className='px-4 py-2 text-left'>Name</th>
+              <th className='px-4 py-2 text-left'>Price</th>
+              <th className='px-4 py-2 text-left'>24h Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCoins.map((coin: Coin, index: number) => (
+              <tr key={coin.id} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-200'}`}>
+                <td className='px-4 py-2'>
+                  <input
+                    type="checkbox"
+                    checked={selectedCoins.includes(coin.id)}
+                    onChange={() => handleSelectCoin(coin.id)}
+                  />
+                </td>
+                <td className='px-4 py-2'>
+                  <img
+                    src={coin.image}
+                    alt={coin.name}
+                    className='w-10 h-10 rounded-full object-cover'
+                  />
+                </td>
+                <td className='px-4 py-2'>{coin.name}</td>
+                <td className='px-4 py-2'>₹{coin.current_price}</td>
+                <td className='px-4 py-2'>{coin.price_change_percentage_24h.toFixed(2)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <div className='mt-8 flex justify-between'>
-        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
+      <div className='mt-8 flex justify-between items-center'>
+        <button
+          className={`pagination-button ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          &#8592; Previous
         </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-          Next
+        <span className='text-gray-600'>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          className={`pagination-button ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next &#8594;
         </button>
       </div>
     </section>

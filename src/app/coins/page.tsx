@@ -1,22 +1,28 @@
 import axios from 'axios';
-import Pagination from '@/components/Pagination';
 import { Coin } from '@/types';
+import Pagination from '@/components/Pagination';
 
-const COINS_API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr';
+export const revalidate = 60; // Revalidate the page every 60 seconds
 
 async function getCoins(): Promise<Coin[]> {
   try {
-    const response = await axios.get<Coin[]>(COINS_API_URL, {
+    const response = await axios.get<Coin[]>('https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr', {
       headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-SdC7w5bkdz7CfT5rS7YbWpBC' }
     });
     return response.data;
   } catch (error) {
     console.error('Error fetching coins:', error);
-    return []; // Return an empty array or handle the error as needed
+    return [];
   }
 }
 
 export default async function CoinsPage() {
   const coins = await getCoins();
-  return <Pagination coins={coins} />;
+
+  return (
+    <section>
+      <h1>Coins List</h1>
+      <Pagination initialCoins={coins} />
+    </section>
+  );
 }

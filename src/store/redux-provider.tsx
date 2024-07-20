@@ -1,10 +1,11 @@
 "use client";
 
 import { Provider } from "react-redux";
-import { store } from "./index";
+import { store } from "./index"; // Ensure this path is correct
 import { persistStore } from "redux-persist";
 
-persistStore(store);
+const persistor = persistStore(store);
+
 export default function ReduxProvider({
   children,
 }: {

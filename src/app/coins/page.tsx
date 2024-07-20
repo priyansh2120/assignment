@@ -1,8 +1,12 @@
-import axios from 'axios';
-import { Coin } from '@/types';
-import Pagination from '@/components/Pagination';
+'use client';
 
-export const revalidate = 60; // Revalidate the page every 60 seconds
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import AllCoinsTable from '@/components/AllCoinsTable';
+import WatchlistTable from '@/components/WatchlistTable';
+import CoinChart from '@/components/CoinChart';
+import { Coin } from '@/types';
+import { DragDropProvider } from '@/components/DragDropContext';
 
 async function getCoins(): Promise<Coin[]> {
   try {
@@ -16,13 +20,50 @@ async function getCoins(): Promise<Coin[]> {
   }
 }
 
-export default async function CoinsPage() {
-  const coins = await getCoins();
+const CoinsPage = () => {
+  const [coins, setCoins] = useState<Coin[]>([]);
+  const [selectedCoins, setSelectedCoins] = useState<Coin[]>([]);
+
+  useEffect(() => {
+    async function fetchCoins() {
+      const coinsData = await getCoins();
+      setCoins(coinsData);
+    }
+    fetchCoins();
+  }, []);
+
+  const handleSelectCoin = (coin: Coin) => {
+    setSelectedCoins((prevSelectedCoins) => {
+      if (prevSelectedCoins.includes(coin)) {
+        return prevSelectedCoins.filter((selectedCoin) => selectedCoin.id !== coin.id);
+      } else {
+        return [...prevSelectedCoins, coin];
+      }
+    });
+  };
 
   return (
-    <section>
-      <h1>Coins List</h1>
-      <Pagination initialCoins={coins} />
-    </section>
+    <DragDropProvider>
+      <div className='flex flex-col items-center'>
+        <h1 className='text-2xl font-bold mb-4'>Coin Dashboard</h1>
+        <div className='flex w-full mb-8'>
+          <div className='w-1/2 p-4'>
+            <h2 className='text-xl font-semibold mb-2'>All Coins</h2>
+            <AllCoinsTable
+              coins={coins}
+              onSelectCoin={handleSelectCoin}
+              selectedCoins={selectedCoins}
+            />
+          </div>
+          <div className='w-1/2 p-4'>
+            <h2 className='text-xl font-semibold mb-2'>Watchlist</h2>
+            <WatchlistTable />
+          </div>
+        </div>
+        <CoinChart selectedCoins={selectedCoins.map((coin) => coin.id)} />
+      </div>
+    </DragDropProvider>
   );
-}
+};
+
+export default CoinsPage;

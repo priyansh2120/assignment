@@ -5,6 +5,7 @@ import axios from 'axios';
 import AllCoinsTable from '@/components/AllCoinsTable';
 import WatchlistTable from '@/components/WatchlistTable';
 import CoinChart from '@/components/CoinChart';
+import TrendingCoinsTable from '@/components/TrendingCoinsTable';
 import { Coin } from '@/types';
 import { DragDropProvider } from '@/components/DragDropContext';
 
@@ -59,6 +60,9 @@ const CoinsPage = () => {
             <h2 className='text-xl font-semibold mb-2'>Watchlist</h2>
             <WatchlistTable />
           </div>
+        </div>
+        <div className='w-full mb-8'>
+          <TrendingCoinsTable />
         </div>
         <CoinChart selectedCoins={selectedCoins.map((coin) => coin.id)} />
       </div>

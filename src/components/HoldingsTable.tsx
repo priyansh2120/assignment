@@ -51,11 +51,11 @@ const HoldingsTable = ({ selectedCrypto }: HoldingsTableProps) => {
   const startIndex = (currentPage - 1) * holdingsPerPage;
   const currentHoldings = holdings.slice(startIndex, startIndex + holdingsPerPage);
 
-  const firstLetterCapital = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+  // const firstLetterCapital = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
   return (
     <div className='flex flex-col items-center'>
-      <h1 className='text-2xl font-bold mb-4'>{firstLetterCapital(selectedCrypto)} Public Holdings</h1>
+      <h1 className='text-2xl font-bold mb-4'>{selectedCrypto} Public Holdings</h1>
       <div className='overflow-auto' style={{ maxHeight: '500px' }}>
         <table className='min-w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700'>
           <thead className='bg-gray-100 dark:bg-gray-900'>

@@ -31,7 +31,6 @@ const TrendingCoinsTable = () => {
         url: 'https://api.coingecko.com/api/v3/search/trending',
         headers: {
           accept: 'application/json',
-          'x-cg-demo-api-key': 'CG-SdC7w5bkdz7CfT5rS7YbWpBC'
         }
       };
 
@@ -59,33 +58,35 @@ const TrendingCoinsTable = () => {
 
   return (
     <div>
-      <h2 className='text-xl font-semibold mb-2'>Trending Coins</h2>
-      <table className='min-w-full bg-white rounded-lg overflow-hidden'>
-        <thead className='bg-gray-100'>
-          <tr>
-            <th className='px-4 py-2 text-left'>Rank</th>
-            <th className='px-4 py-2 text-left'>Coin</th>
-            <th className='px-4 py-2 text-left'>Name</th>
-            <th className='px-4 py-2 text-left'>Symbol</th>
-            <th className='px-4 py-2 text-left'>Price (BTC)</th>
-            <th className='px-4 py-2 text-left'>Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trendingCoins.map((coin) => (
-            <tr key={coin.item.id} className='bg-gray-50'>
-              <td className='px-4 py-2'>{coin.item.market_cap_rank}</td>
-              <td className='px-4 py-2'>
-                <img src={coin.item.thumb} alt={coin.item.name} className='w-10 h-10 rounded-full object-cover' />
-              </td>
-              <td className='px-4 py-2'>{coin.item.name}</td>
-              <td className='px-4 py-2'>{coin.item.symbol}</td>
-              <td className='px-4 py-2'>{coin.item.price_btc.toFixed(8)}</td>
-              <td className='px-4 py-2'>{coin.item.score}</td>
+      <h2 className='text-xl font-semibold mb-2 text-center'>Trending Coins</h2>
+      <div className="overflow-auto" style={{ maxHeight: '500px' }}>
+        <table className='min-w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700'>
+          <thead className='bg-gray-100 dark:bg-gray-900'>
+            <tr>
+              <th className='px-4 py-2 text-left text-gray-700 dark:text-gray-200'>Rank</th>
+              <th className='px-4 py-2 text-left text-gray-700 dark:text-gray-200'>Coin</th>
+              <th className='px-4 py-2 text-left text-gray-700 dark:text-gray-200'>Name</th>
+              <th className='px-4 py-2 text-left text-gray-700 dark:text-gray-200'>Symbol</th>
+              <th className='px-4 py-2 text-left text-gray-700 dark:text-gray-200'>Price (BTC)</th>
+              <th className='px-4 py-2 text-left text-gray-700 dark:text-gray-200'>Score</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {trendingCoins.map((coin, index) => (
+              <tr key={coin.item.id} className={index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700' : 'bg-gray-200 dark:bg-gray-600'}>
+                <td className='px-4 py-2 text-gray-900 dark:text-gray-300'>{coin.item.market_cap_rank}</td>
+                <td className='px-4 py-2'>
+                  <img src={coin.item.thumb} alt={coin.item.name} className='w-10 h-10 rounded-full object-cover' />
+                </td>
+                <td className='px-4 py-2 text-gray-900 dark:text-gray-300'>{coin.item.name}</td>
+                <td className='px-4 py-2 text-gray-900 dark:text-gray-300'>{coin.item.symbol}</td>
+                <td className='px-4 py-2 text-gray-900 dark:text-gray-300'>{coin.item.price_btc.toFixed(8)}</td>
+                <td className='px-4 py-2 text-gray-900 dark:text-gray-300'>{coin.item.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

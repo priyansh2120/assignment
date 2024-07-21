@@ -13,3 +13,20 @@ body {
     text-wrap: balance;
   }
 }
+body {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark {
+  background-color: #1a202c;
+  color: #f7fafc;
+}
+
+.dark .bg-white {
+  background-color: #2d3748;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0;
+}
+

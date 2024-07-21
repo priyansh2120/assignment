@@ -1,7 +1,8 @@
 "use client";
-import { Provider } from 'react-redux';
-import store from '@/store';
 
+import { Provider, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import store, { RootState } from '@/store';
 
 export default function ProfileLayout({
   children,
@@ -10,9 +11,25 @@ export default function ProfileLayout({
 }) {
   return (
     <Provider store={store}>
-      
-        <main>{children}</main>
-      
+      <LayoutWithTheme>{children}</LayoutWithTheme>
     </Provider>
   );
 }
+
+const LayoutWithTheme = ({ children }: { children: React.ReactNode }) => {
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  return (
+    <>
+      <main>{children}</main>
+    </>
+  );
+};

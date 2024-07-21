@@ -1,4 +1,3 @@
-// app/coins/CoinDetail.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -17,7 +16,7 @@ const CoinDetail = () => {
     const [chartArray, setChartArray] = useState([]);
     const btns = ["24h", "7d", "14d", "30d", "60d", "1y", "max"];
 
-    const fetchCoinData = async (coinId, days) => {
+    const fetchCoinData = async (coinId:any, days:any) => {
         try {
             setLoading(true);
             const { data: coinData } = await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);

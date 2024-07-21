@@ -97,7 +97,7 @@ const CoinsPage = () => {
             </div>
           </div>
           <div className='w-full md:w-1/3 p-4'>
-            <div className='h-[40%] mb-4 overflow-auto'>
+            <div className='h-[%] mb-4 overflow-auto'>
               {/* <h2 className='text-xl font-semibold mb-2 text-gray-900 dark:text-white'>Watchlist</h2> */}
               <WatchlistTable coins={coins} />
             </div>

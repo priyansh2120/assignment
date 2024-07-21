@@ -10,12 +10,12 @@ const CoinDetail = () => {
     const { id } = useParams();
 
     const [loading, setLoading] = useState(true);
-    const [coin, setCoin] = useState({});
-    const [days, setDays] = useState("24h");
-    const [chartArray, setChartArray] = useState([]);
-    const btns = ["24h", "7d", "14d", "30d", "60d", "1y", "max"];
+    const [coin, setCoin] = useState<any>({});
+    const [days, setDays] = useState<string>("24h");
+    const [chartArray, setChartArray] = useState<any[]>([]);
+    const btns: string[] = ["24h", "7d", "14d", "30d", "60d", "1y", "max"];
 
-    const fetchCoinData = async (coinId, days) => {
+    const fetchCoinData = async (coinId: string, days: string) => {
         try {
             setLoading(true);
             const { data: coinData } = await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
@@ -31,8 +31,8 @@ const CoinDetail = () => {
             setLoading(false);
 
             // Save to recently viewed in local storage
-            const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewedCoins')) || [];
-            const updatedRecentlyViewed = [coinData, ...recentlyViewed.filter(c => c.id !== coinId)].slice(0, 5);
+            const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewedCoins') || '[]');
+            const updatedRecentlyViewed = [coinData, ...recentlyViewed.filter((c: any) => c.id !== coinId)].slice(0, 5);
             localStorage.setItem('recentlyViewedCoins', JSON.stringify(updatedRecentlyViewed));
         } catch (error) {
             console.error('Error fetching coin data:', error);
@@ -46,7 +46,7 @@ const CoinDetail = () => {
         }
     }, [id, days]);
 
-    const switchChart = (key) => {
+    const switchChart = (key: string) => {
         setDays(key);
     };
 
@@ -100,3 +100,5 @@ const CoinDetail = () => {
 };
 
 export default CoinDetail;
+
+

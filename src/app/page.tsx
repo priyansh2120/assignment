@@ -1,5 +1,6 @@
-import AuthUpdater from "./auth-updater";
-import AuthViewer from "./auth-viewer";
+import HoldingsTable from "@/components/HoldingsTable";
+import RecentlyViewedCoins from "@/components/RecentlyViewedCoins";
+import SearchBar from "@/components/Searchbar";
 
 export default async function Home() {
 
@@ -7,8 +8,9 @@ export default async function Home() {
 
   return (
     <main className="w-full h-screen grid md:grid-cols-2 place-items-center">
-      <AuthUpdater />
-      <AuthViewer />
+      <SearchBar/>
+     <HoldingsTable/>
+     
     </main>
   );
 }

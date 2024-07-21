@@ -1,8 +1,10 @@
+// components/AllCoinsTable.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { Coin } from '@/types';
 import { useDragDrop } from '@/components/DragDropContext';
+import Link from 'next/link';
 
 interface AllCoinsTableProps {
   coins: Coin[];
@@ -44,14 +46,35 @@ const AllCoinsTable = ({ coins, onSelectCoin, selectedCoins }: AllCoinsTableProp
         </thead>
         <tbody>
           {currentCoins.map((coin: Coin, index: number) => (
-            <CoinRow
-              key={coin.id}
-              coin={coin}
-              index={index}
-              onSelect={handleSelectCoin}
-              isSelected={selectedCoins.includes(coin)}
+
+            <tr
+              className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-200'}`}
+              draggable
               onDragStart={() => setDraggingCoin(coin)}
-            />
+              id={coin.id}
+            >
+              <td className='px-4 py-2'>
+                <input
+                  type='checkbox'
+                  checked={selectedCoins.includes(coin)}
+                  onChange={() => handleSelectCoin(coin)}
+                />
+              </td>
+              <Link href={`/coin/${coin.id}`}>
+                <td className='px-4 py-2'>
+                  <img
+                    src={coin.image}
+                    alt={coin.name}
+                    className='w-10 h-10 rounded-full object-cover'
+                  />
+                </td>
+                <td className='px-4 py-2'>{coin.name}</td>
+                <td className='px-4 py-2'>₹{coin.current_price}</td>
+                <td className='px-4 py-2'>{coin.price_change_percentage_24h.toFixed(2)}%</td>
+              </Link>
+            </tr>
+
+
           ))}
         </tbody>
       </table>
@@ -65,42 +88,6 @@ const AllCoinsTable = ({ coins, onSelectCoin, selectedCoins }: AllCoinsTableProp
         </button>
       </div>
     </div>
-  );
-};
-
-interface CoinRowProps {
-  coin: Coin;
-  index: number;
-  onSelect: (coin: Coin) => void;
-  isSelected: boolean;
-  onDragStart: () => void;
-}
-
-const CoinRow = ({ coin, index, onSelect, isSelected, onDragStart }: CoinRowProps) => {
-  return (
-    <tr
-      className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-200'}`}
-      draggable
-      onDragStart={onDragStart}
-    >
-      <td className='px-4 py-2'>
-        <input
-          type='checkbox'
-          checked={isSelected}
-          onChange={() => onSelect(coin)}
-        />
-      </td>
-      <td className='px-4 py-2'>
-        <img
-          src={coin.image}
-          alt={coin.name}
-          className='w-10 h-10 rounded-full object-cover'
-        />
-      </td>
-      <td className='px-4 py-2'>{coin.name}</td>
-      <td className='px-4 py-2'>₹{coin.current_price}</td>
-      <td className='px-4 py-2'>{coin.price_change_percentage_24h.toFixed(2)}%</td>
-    </tr>
   );
 };
 

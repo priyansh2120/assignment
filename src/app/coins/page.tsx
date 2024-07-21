@@ -8,6 +8,7 @@ import CoinChart from '@/components/CoinChart';
 import TrendingCoinsTable from '@/components/TrendingCoinsTable';
 import { Coin } from '@/types';
 import { DragDropProvider } from '@/components/DragDropContext';
+import RecentlyViewedCoins from '@/components/RecentlyViewedCoins';
 
 async function getCoins(): Promise<Coin[]> {
   try {
@@ -66,6 +67,7 @@ const CoinsPage = () => {
         </div>
         <CoinChart selectedCoins={selectedCoins.map((coin) => coin.id)} />
       </div>
+      <RecentlyViewedCoins/>
     </DragDropProvider>
   );
 };

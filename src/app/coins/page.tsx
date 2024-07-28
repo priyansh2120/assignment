@@ -27,15 +27,26 @@ const CoinsPage = () => {
   const [coins, setCoins] = useState<Coin[]>([]);
   const [selectedCoins, setSelectedCoins] = useState<Coin[]>([]);
   const [view, setView] = useState<'all' | 'bitcoin' | 'ethereum' | 'trending'>('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchCoins() {
-      const coinsData = await getCoins();
-      setCoins(coinsData);
+      try {
+        setIsLoading(true);
+        setError(null);
+        const coinsData = await getCoins();
+        setCoins(coinsData);
 
-      // Set default selected coins (Bitcoin and Wrapped Bitcoin)
-      const defaultCoins = coinsData.filter(coin => coin.id === 'bitcoin' || coin.id === 'wrapped-bitcoin');
-      setSelectedCoins(defaultCoins);
+        // Set default selected coins (Bitcoin and Wrapped Bitcoin)
+        const defaultCoins = coinsData.filter(coin => coin.id === 'bitcoin' || coin.id === 'wrapped-bitcoin');
+        setSelectedCoins(defaultCoins);
+      } catch (error) {
+        console.error('Error fetching coins:', error);
+        setError('Failed to fetch coins. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchCoins();
   }, []);
@@ -53,7 +64,6 @@ const CoinsPage = () => {
   return (
     <DragDropProvider>
       <div className='flex flex-col items-center bg-white dark:bg-gray-900 min-h-screen'>
-        <h1 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>Coin Dashboard</h1>
         <div className='w-full flex flex-col md:flex-row'>
           <div className='w-full md:w-2/3 p-4'>
             <div className='md:ml-44'>
@@ -80,7 +90,7 @@ const CoinsPage = () => {
               </button>
               <button
                 onClick={() => setView('trending')}
-                className={`px-4 py-2 rounded-lg ${view === 'trending' ? 'bg-teal-600 text-white' : 'bg-gray-300 dark:bg-black hover:bg-gray-400 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-gray-300'}`}
+                className={`px-4 py-2 rounded-lg ${view === 'trending' ? 'bg-teal-600 text-white' : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'}`}
               >
                 Trending Coins
               </button>
@@ -88,7 +98,8 @@ const CoinsPage = () => {
             <div className='w-full md:w-full p-4'>
               {view === 'all' && (
                 <>
-                  <AllCoinsTable coins={coins} onSelectCoin={handleSelectCoin} selectedCoins={selectedCoins} />
+                  <AllCoinsTable coins={coins} onSelectCoin={handleSelectCoin} selectedCoins={selectedCoins} loading={isLoading} error={error}
+                  />
                 </>
               )}
               {view === 'bitcoin' && <HoldingsTable selectedCrypto='bitcoin' />}
@@ -98,12 +109,10 @@ const CoinsPage = () => {
           </div>
           <div className='w-full md:w-1/3 p-4'>
             <div className='h-[%] mb-4 overflow-auto'>
-              {/* <h2 className='text-xl font-semibold mb-2 text-gray-900 dark:text-white'>Watchlist</h2> */}
-              <WatchlistTable coins={coins} />
+              <WatchlistTable coins={coins} isLoading={isLoading} error={error} />
             </div>
             <div className='mt-2 overflow-auto'>
-              {/* <h2 className='text-xl font-semibold mb-2 text-gray-900 dark:text-white'>Recently Viewed Coins</h2> */}
-              <RecentlyViewedCoins coins={coins} />
+              <RecentlyViewedCoins coins={coins} isLoading={isLoading} error={error} />
             </div>
           </div>
         </div>

@@ -5,14 +5,17 @@ import { Coin } from '@/types';
 import { useDragDrop } from '@/components/DragDropContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import Loader from './Loader';
 
 interface AllCoinsTableProps {
   coins: Coin[];
   onSelectCoin: (coin: Coin) => void;
   selectedCoins: Coin[];
+  loading: boolean;
+  error: string | null;
 }
 
-const AllCoinsTable = ({ coins, onSelectCoin, selectedCoins }: AllCoinsTableProps) => {
+const AllCoinsTable = ({ coins, onSelectCoin, selectedCoins, loading, error }: AllCoinsTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const coinsPerPage = 20;
   const totalPages = Math.ceil(coins.length / coinsPerPage);
@@ -31,6 +34,21 @@ const AllCoinsTable = ({ coins, onSelectCoin, selectedCoins }: AllCoinsTableProp
 
   const startIndex = (currentPage - 1) * coinsPerPage;
   const currentCoins = coins.slice(startIndex, startIndex + coinsPerPage);
+  if (loading) {
+    return <div className='-mt-[200px]'><Loader /></div>
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center p-8 bg-red-100 dark:bg-red-900 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold text-red-800 dark:text-red-200 mb-4">Oops!</h2>
+          <p className="text-red-600 dark:text-red-300">{error}</p>
+          <p className="mt-4 text-sm text-red-500 dark:text-red-400">Please try again in a few minutes.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

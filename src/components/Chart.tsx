@@ -1,4 +1,3 @@
-// components/Chart.tsx
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -22,7 +21,7 @@ ChartJS.register(
     Legend
 );
 
-const Chart = ({ arr, days }) => {
+const Chart = ({ arr, days }:{arr:any, days:any}) => {
     const prices = [];
     const dates = [];
 

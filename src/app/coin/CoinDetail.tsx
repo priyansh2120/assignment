@@ -1,104 +1,127 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import axios from 'axios';
-import Chart from '@/components/Chart';
-import { Button } from '@mui/material';
+import AllCoinsTable from '@/components/AllCoinsTable';
+import WatchlistTable from '@/components/WatchlistTable';
+import CoinChart from '@/components/CoinChart';
+import { Coin } from '@/types';
+import { DragDropProvider } from '@/components/DragDropContext';
+import RecentlyViewedCoins from '@/components/RecentlyViewedCoins';
+import HoldingsTable from '@/components/HoldingsTable';
+import TrendingCoinsTable from '@/components/TrendingCoinsTable';
 
-const CoinDetail = () => {
-    const { id } = useParams();
+async function getCoins(): Promise<Coin[]> {
+    try {
+        const response = await axios.get<Coin[]>('https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr', {
+            headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-SdC7w5bkdz7CfT5rS7YbWpBC' }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching coins:', error);
+        return [];
+    }
+}
 
-    const [loading, setLoading] = useState(true);
-    const [coin, setCoin] = useState<any>({});
-    const [days, setDays] = useState<string>("24h");
-    const [chartArray, setChartArray] = useState<any[]>([]);
-    const btns: string[] = ["24h", "7d", "14d", "30d", "60d", "1y", "max"];
-
-    const fetchCoinData = async (coinId: string, days: string) => {
-        try {
-            setLoading(true);
-            const { data: coinData } = await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
-            const { data: chartData } = await axios.get(
-                `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart`, {
-                params: {
-                    vs_currency: 'inr',
-                    days: days
-                }
-            });
-            setCoin(coinData);
-            setChartArray(chartData.prices);
-            setLoading(false);
-
-            // Save to recently viewed in local storage
-            const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewedCoins') || '[]');
-            const updatedRecentlyViewed = [coinData, ...recentlyViewed.filter((c: any) => c.id !== coinId)].slice(0, 5);
-            localStorage.setItem('recentlyViewedCoins', JSON.stringify(updatedRecentlyViewed));
-        } catch (error) {
-            console.error('Error fetching coin data:', error);
-            setLoading(false);
-        }
-    };
+const CoinsPage = (id:any) => {
+    const [coins, setCoins] = useState<Coin[]>([]);
+    const [selectedCoins, setSelectedCoins] = useState<Coin[]>([]);
+    const [view, setView] = useState<'all' | 'bitcoin' | 'ethereum' | 'trending'>('all');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (id) {
-            fetchCoinData(id, days);
-        }
-    }, [id, days]);
+        async function fetchCoins() {
+            try {
+                setIsLoading(true);
+                setError(null);
+                const coinsData = await getCoins();
+                setCoins(coinsData);
 
-    const switchChart = (key: string) => {
-        setDays(key);
+                // Set default selected coins (Bitcoin and Wrapped Bitcoin)
+                const defaultCoins = coinsData.filter(coin => coin.id === 'bitcoin' || coin.id === 'wrapped-bitcoin');
+                setSelectedCoins(defaultCoins);
+            } catch (error) {
+                console.error('Error fetching coins:', error);
+                setError('Failed to fetch coins. Please try again later.');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchCoins();
+    }, []);
+
+    const handleSelectCoin = (coin: Coin) => {
+        setSelectedCoins((prevSelectedCoins) => {
+            if (prevSelectedCoins.includes(coin)) {
+                return prevSelectedCoins.filter((selectedCoin) => selectedCoin.id !== coin.id);
+            } else {
+                return [...prevSelectedCoins, coin];
+            }
+        });
     };
 
-    if (loading) return <div className="loading">Loading...</div>;
-
     return (
-        <div className="flex flex-col items-center p-6 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <div className="w-full max-w-5xl bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6 p-6 flex flex-col md:flex-row">
-                <div className="flex-1 text-center md:text-left">
-                    <img src={coin?.image?.large} alt={coin?.name} className="w-36 h-36 object-cover rounded-full mx-auto mb-4 md:mx-0"/>
-                    <h2 className="text-3xl font-bold mb-2">{coin?.name}</h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Rank: #{coin?.coingecko_rank}</p>
-                </div>
-                <div className="flex-2 p-6">
-                    <div className="flex flex-col md:flex-row justify-between mb-4">
-                        <span className="flex items-center text-xl mb-2 md:mb-0">
-                            24h Change:
-                            <div className={`ml-2 px-3 py-1 rounded ${coin?.market_data?.price_change_percentage_24h > 0 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-400"}`}>
-                                {coin?.market_data?.price_change_percentage_24h?.toFixed(2)}%
-                            </div>
-                        </span>
-                        <span className="flex items-center text-xl mb-2 md:mb-0">
-                            Price:
-                            <div className="ml-2 text-2xl font-bold">
-                                ₹{coin?.market_data?.current_price?.inr?.toFixed(2)}
-                            </div>
-                        </span>
-                        <span className="text-xl">Symbol: {coin?.symbol}</span>
+        <DragDropProvider>
+            <div className='flex flex-col items-center bg-white dark:bg-gray-900 min-h-screen'>
+                {/* <h1 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>Coin Dashboard</h1> */}
+                <div className='w-full flex flex-col lg:flex-row'>
+                    <div className='w-full lg:w-2/3 p-4'>
+                        <div className='lg:ml-44'>
+                            <CoinChart selectedCoins={selectedCoins.map((coin) => coin.id)} />
+                        </div>
+                        <div className='flex justify-center space-x-2 mt-4 mb-2 w-full sm:mx-4'>
+                            <button
+                                onClick={() => setView('all')}
+                                className={`px-3 py-1 rounded-lg ${view === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'}`}
+                            >
+                                All Coins
+                            </button>
+                            <button
+                                onClick={() => setView('bitcoin')}
+                                className={`px-3 py-1 rounded-lg ${view === 'bitcoin' ? 'bg-purple-600 text-white' : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'}`}
+                            >
+                                Bitcoin Holdings
+                            </button>
+                            <button
+                                onClick={() => setView('ethereum')}
+                                className={`px-3 py-1 rounded-lg ${view === 'ethereum' ? 'bg-indigo-600 text-white' : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'}`}
+                            >
+                                Ethereum Holdings
+                            </button>
+                            <button
+                                onClick={() => setView('trending')}
+                                className={`px-3 py-1 rounded-lg ${view === 'trending' ? 'bg-teal-600 text-white' : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'}`}
+                            >
+                                Trending Coins
+                            </button>
+                        </div>
+                        <div className='w-full p-4'>
+                            {view === 'all' && (
+                                <>
+                                    <AllCoinsTable coins={coins} onSelectCoin={handleSelectCoin} selectedCoins={selectedCoins} loading={isLoading} error={error}
+                                    />
+                                </>
+                            )}
+                            {view === 'bitcoin' && <HoldingsTable selectedCrypto='bitcoin' />}
+                            {view === 'ethereum' && <HoldingsTable selectedCrypto='ethereum' />}
+                            {view === 'trending' && <TrendingCoinsTable />}
+                        </div>
                     </div>
-                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: coin?.description?.en }} />
+                    <div className='w-full lg:w-1/3 p-4'>
+                        <div className='h-full mb-4 overflow-auto'>
+                            {/* <h2 className='text-xl font-semibold mb-2 text-gray-900 dark:text-white'>Watchlist</h2> */}
+                            <WatchlistTable coins={coins} isLoading={isLoading} error={error} />
+                        </div>
+                        <div className='mt-2 overflow-auto'>
+                            {/* <h2 className='text-xl font-semibold mb-2 text-gray-900 dark:text-white'>Recently Viewed Coins</h2> */}
+                            <RecentlyViewedCoins coins={coins} isLoading={isLoading} error={error} />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div className="w-full max-w-5xl bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-                <Chart arr={chartArray} days={days} />
-            </div>
-            <div className="flex space-x-2">
-                {btns.map((item) => (
-                    <Button
-                        key={item}
-                        onClick={() => switchChart(item)}
-                        variant="contained"
-                        color="success"
-                        className="capitalize"
-                    >
-                        {item}
-                    </Button>
-                ))}
-            </div>
-        </div>
+        </DragDropProvider>
     );
 };
 
-export default CoinDetail;
-
-
+export default CoinsPage;
